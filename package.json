@@ -1,0 +1,17 @@
+{
+  "name": "klyft",
+  "version": "0.0.1",
+  "description": "Unobstrusively make use of child processes in node.js!",
+  "main": "klyft.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "multi-threading",
+    "child-process",
+    "job-queue",
+    "worker"
+  ],
+  "author": "CodingBobby",
+  "license": "ISC"
+}
