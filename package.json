@@ -1,6 +1,6 @@
 {
   "name": "klyft",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Unobstrusively make use of child processes in node.js!",
   "main": "klyft.js",
   "scripts": {
@@ -12,6 +12,9 @@
     "job-queue",
     "worker"
   ],
+  "repository": {
+    "url": "https://github.com/CodingBobby/klyft"
+  },
   "author": "CodingBobby",
   "license": "ISC"
 }
