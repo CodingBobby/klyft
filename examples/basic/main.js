@@ -2,7 +2,7 @@ const klyft = require('./../../klyft')
 
 klyft.enableDebug()
 
-let worker = new klyft.Worker(__dirname+'/child.js')
+let worker = new klyft.Worker('jobs.js')
 
 worker.queue('example-job', 'hello world')
 
