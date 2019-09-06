@@ -10,5 +10,4 @@ new Job('example-job', function(message, done) {
 new Job('another-job', function(message, done) {
    console.log('another-job now executing')
    return done('processed: ' + message)
-   console.log('uh overrunning!')
 })

@@ -1,18 +1,20 @@
 const fork = require('child_process').fork
 const debugLog = require('./lib/helper.js')
 
-
 let debugEnabled = false
+
+debugLog(true, 'error', 'test')
 
 
 class Worker {
-   constructor(moduleName, killIfIdle) {
+   constructor(moduleName, killIfIdle, jobsToRunParallel) {
       this.jobQueueHandler = fork(__dirname + '/lib/queue.js')
 
       this.jobQueueHandler.send({
          type: 'init-queue',
          module: moduleName,
-         debugEnabled: debugEnabled
+         debugEnabled: debugEnabled,
+         jobsToRunParallel: jobsToRunParallel
       })
 
       this.inProgress = []
@@ -20,9 +22,6 @@ class Worker {
       this.killIfIdle = killIfIdle || false
    }
 
-   /**
-    * @param { Job } job the job thats being queued
-    */
    queue(jobName, args) {
       const ID = Date.now()
 

@@ -32,9 +32,9 @@ worker.queue('array-sum', [1, 4, 1, 3])
 
 Okay this is very simple, right? Lets take a closer look.
 
-After including klyft, you want to create a new worker and tell it the path to the `jobs.js` (we'll discuss it shortly). Remember to include the path relative to `main.js`, for example if you keep the job modules in a different folder.
+After including klyft, you want to create a new worker and tell it the path to the `jobs.js` module (we'll discuss it shortly). Remember to include the path relative to `main.js`, for example if you keep the job modules in a different folder.
 
-You can now push jobs to the worker's queue by telling the job's name and optional arguments it takes. The job name is case sensitive and must be unique within the given job module you gave the worker. Since Klyft is based on promises, you can use `.then()` to further process the final result of the job.
+You can now push jobs to the worker's queue by telling the job's name and optional arguments it takes. The job name is case sensitive and must be unique within the job module you gave the worker. Since Klyft is based on promises, you can use `.then()` to further process the final result of the job.
 
 The jobs that are available to be run from this `main.js` are defined and initialized from the second file which we named `jobs.js`. Let's look at it.
 
@@ -58,6 +58,6 @@ const job = new klyft.Job('array-sum', function(args, done) {
 
 Yep, thats everything! 
 
-So what you see there is the definition of a job that is called exacly like we call it from `main.js`. Within the job you define the actual function to execute. There, you can do whatever you want—from simple logs and calculations over regex magic to time consuming triangulation and turtle-slow http requests everything is possible.
+So what you see there is the definition of a job that is named exacly like we call it from `main.js`. Within the job you define the actual function to execute. There, you can do whatever you want—from simple logs and calculations over regex magic to time consuming triangulation and turtle-slow http requests everything is possible.
 
 Instead of just returning a result like you normally do, you'll have to wrap it into the `done()` callback. That way, the worker knows when the job is completed.
