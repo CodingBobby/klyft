@@ -3,8 +3,6 @@ const debugLog = require('./lib/helper.js')
 
 let debugEnabled = false
 
-debugLog(true, 'error', 'test')
-
 
 class Worker {
    constructor(moduleName, killIfIdle, jobsToRunParallel) {
@@ -50,7 +48,7 @@ class Worker {
    }
 
    updateWorker(ID) {
-      // remove the finished job ids so we can find out if the queu is idling or not
+      // remove the finished job ids so we can find out if the queue is idling or not
       this.inProgress = this.inProgress.filter(id => {
          return id !== ID
       })
