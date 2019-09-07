@@ -70,10 +70,7 @@ class Job {
 
    listen() {
       process.on('message', m => {
-         debugLog(debugEnabled, 'klyft', `job ${this.name} received ${m.name}`)
          if(m.name === this.name) {
-            debugLog(debugEnabled, 'klyft', this.name + ' got called')
-            
             new Promise((resolve, rej) => {
 
                this.callback(m.args, function(result) {
@@ -83,6 +80,11 @@ class Job {
 
             }).then(result => {
                // send the results back to the main thread after callback completes
+               if(result === undefined) {
+                  result = 'K_undef'
+               } else if(result === null) {
+                  result = 'K_null'
+               }
                process.send(result)
             })
          }
