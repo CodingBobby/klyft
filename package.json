@@ -1,6 +1,6 @@
 {
   "name": "klyft",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Unobstrusively make use of child processes in node.js!",
   "main": "klyft.js",
   "scripts": {

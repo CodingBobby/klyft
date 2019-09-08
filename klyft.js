@@ -3,6 +3,7 @@ const rndStr = require('randomstring').generate
 const debugLog = require('./lib/helper.js')
 
 let debugEnabled = false
+let debugImportant = false
 
 
 class Worker {
@@ -12,6 +13,7 @@ class Worker {
       this.jobQueueHandler.send({
          type: 'init-queue',
          module: moduleName,
+         debugImportant: debugImportant,
          debugEnabled: debugEnabled,
          jobsToRunParallel: threads,
          allowDuplicates: allowDuplicates
@@ -112,7 +114,8 @@ class Job {
 
 
 module.exports = {
-   Worker, Job, enableDebug: () => {
-      debugEnabled = true
+   Worker, Job, enableDebug: onlyImportant => {
+      debugEnabled = onlyImportant ? false : true
+      debugImportant = true // always on
    }
 }
