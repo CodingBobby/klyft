@@ -1,4 +1,5 @@
 const fork = require('child_process').fork
+const rndStr = require('randomstring').generate
 const debugLog = require('./lib/helper.js')
 
 let debugEnabled = false
@@ -19,10 +20,20 @@ class Worker {
       this.inProgress = []
 
       this.killIfIdle = killIfIdle || false
+
+      if(killIfIdle) {
+         this.jobQueueHandler.on('message', m => {
+            if(m.type === 'status' && m.data === 'queue-completed') {
+               debugLog(debugEnabled, 'klyft', 'terminating worker')
+               this.jobQueueHandler.kill()
+            }
+         })
+      }
    }
 
    queue(jobName, args) {
-      const ID = Date.now()
+      const dateString = Date.now().toString().split('').splice(8).join('')
+      const ID = rndStr(8) +'_'+ dateString
 
       debugLog(debugEnabled, 'klyft', 'queueing job '+ID)
       this.inProgress.push(ID)
@@ -53,10 +64,6 @@ class Worker {
       this.inProgress = this.inProgress.filter(id => {
          return id !== ID
       })
-
-      if(this.killIfIdle && this.inProgress.length === 0) {
-         this.jobQueueHandler.kill()
-      }
    }
 }
 
@@ -72,8 +79,15 @@ class Job {
    listen() {
       process.on('message', m => {
          if(m.name === this.name) {
+            // Confirm that the job request was received, so that the Queue knows if the requested job even exists.
+            process.send({
+               type: 'status',
+               data: 'starting'
+            })
+
             new Promise((resolve, rej) => {
 
+               // run the actual task
                this.callback(m.args, function(result) {
                   // do NOT arrow-ize this function!
                   resolve(result)
@@ -86,7 +100,10 @@ class Job {
                } else if(result === null) {
                   result = 'K_null'
                }
-               process.send(result)
+               process.send({
+                  type: 'result',
+                  data: result
+               })
             })
          }
       })
