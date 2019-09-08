@@ -42,3 +42,18 @@ new klyft.Job('array-sum', function(args, done) {
    return done(sum)
 })
 ```
+
+## Settings
+In the `Worker` contructor you can optionally define the number of threads it should spread queued jobs over. As soon as a job completes, the freed thread is assinged to the next job in the queue. Keep in mind that jobs will probably not resolve in the same order they were queued.
+
+For applications with higher complexity, it can be helpful to eliminate duplicated tasks because even the simplest things can pile up. 
+
+It is also possible to create a temporary worker that kills itself as soon as it has completed all jobs that are currently in the queue and thus goes idle.
+
+```js
+new Worker('path/to/job.js',
+   threads: number,          // default: 1
+   allowDuplicates: boolean, // default: true
+   killIfIdle: boolean       // default: false
+)
+```

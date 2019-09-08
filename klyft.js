@@ -5,14 +5,15 @@ let debugEnabled = false
 
 
 class Worker {
-   constructor(moduleName, killIfIdle, jobsToRunParallel) {
+   constructor(moduleName, threads, allowDuplicates, killIfIdle) {
       this.jobQueueHandler = fork(__dirname + '/lib/queue.js')
 
       this.jobQueueHandler.send({
          type: 'init-queue',
          module: moduleName,
          debugEnabled: debugEnabled,
-         jobsToRunParallel: jobsToRunParallel
+         jobsToRunParallel: threads,
+         allowDuplicates: allowDuplicates
       })
 
       this.inProgress = []
