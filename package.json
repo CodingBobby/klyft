@@ -16,7 +16,7 @@
     "url": "https://github.com/CodingBobby/klyft.git"
   },
   "publishConfig": {
-    "registry":"https://npm.pkg.github.com/"
+    "registry":"https://npm.pkg.github.com/klyft"
   },
   "author": "CodingBobby",
   "license": "ISC",
