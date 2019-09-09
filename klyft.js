@@ -26,7 +26,7 @@ class Worker {
       if(killIfIdle) {
          this.jobQueueHandler.on('message', m => {
             if(m.type === 'status' && m.data === 'queue-completed') {
-               debugLog(debugEnabled, 'klyft', 'terminating worker')
+               debugLog(debugImportant, 'klyft', 'terminating worker')
                this.jobQueueHandler.kill()
             }
          })
