@@ -16,7 +16,8 @@ class Worker {
          debugImportant: debugImportant,
          debugEnabled: debugEnabled,
          jobsToRunParallel: threads,
-         allowDuplicates: allowDuplicates
+         allowDuplicates: allowDuplicates,
+         killIfIdle: killIfIdle
       })
 
       this.inProgress = []
@@ -53,9 +54,11 @@ class Worker {
          this.jobQueueHandler.send({
             type: 'init-job',
             id: ID,
+            // Since only this will be accessible for the Job, the ID is passed here as well
             data: {
                name: jobName,
-               args: args
+               args: args,
+               id: ID
             }
          })
       })
@@ -84,7 +87,8 @@ class Job {
             // Confirm that the job request was received, so that the Queue knows if the requested job even exists.
             process.send({
                type: 'status',
-               data: 'starting'
+               data: 'starting',
+               id: m.id
             })
 
             new Promise((resolve, rej) => {
@@ -104,7 +108,8 @@ class Job {
                }
                process.send({
                   type: 'result',
-                  data: result
+                  data: result,
+                  id: m.id
                })
             })
          }
