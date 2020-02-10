@@ -8,7 +8,9 @@ let debugImportant = false
 
 class Worker {
    constructor(moduleName, threads, allowDuplicates, killIfIdle) {
+      debugLog(debugEnabled, 'klyft', 'initializing worker for '+moduleName)
       this.jobQueueHandler = fork(__dirname + '/lib/queue.js')
+      debugLog(debugImportant, 'klyft', 'worker live at pid '+this.jobQueueHandler.pid)
 
       this.jobQueueHandler.send({
          type: 'init-queue',
@@ -27,7 +29,7 @@ class Worker {
       if(killIfIdle) {
          this.jobQueueHandler.on('message', m => {
             if(m.type === 'status' && m.data === 'queue-completed') {
-               debugLog(debugImportant, 'klyft', 'terminating worker')
+               debugLog(debugImportant, 'klyft', 'terminating worker '+this.jobQueueHandler.pid)
                this.jobQueueHandler.kill()
             }
          })
@@ -36,16 +38,16 @@ class Worker {
 
    queue(jobName, args) {
       const dateString = Date.now().toString().split('').splice(8).join('')
-      const ID = rndStr(8) +'_'+ dateString
+      const ID = rndStr(8) + dateString
 
-      debugLog(debugEnabled, 'klyft', 'queueing job '+ID)
+      debugLog(debugEnabled, 'klyft', 'queueing '+jobName+' ('+ID+')')
       this.inProgress.push(ID)
 
       return new Promise((resolve, rej) => {
          this.jobQueueHandler.on('message', msg => {
             if(msg.type === 'job-done') {
                if(msg.id === ID) {
-                  this.updateWorker(ID)
+                  this._updateWorker(ID)
                   resolve(msg.data)
                }
             }
