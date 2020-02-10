@@ -22,6 +22,8 @@ class Worker {
          killIfIdle: killIfIdle
       })
 
+      this.threadCount = threads
+
       this.inProgress = []
 
       this.killIfIdle = killIfIdle || false
@@ -66,7 +68,26 @@ class Worker {
       })
    }
 
-   updateWorker(ID) {
+   kill() {
+      this.jobQueueHandler.send({
+         type: 'kill-queue'
+      })
+
+      let killedThreads = 0
+
+      this.jobQueueHandler.on('message', m => {
+         if(m.type === 'kill-queue' && m.data === 'success') {
+            killedThreads++
+
+            if(killedThreads == this.threadCount) {
+               debugLog(debugImportant, 'klyft', 'terminating worker '+this.jobQueueHandler.pid)
+               this.jobQueueHandler.kill()
+            }
+         }
+      })
+   }
+
+   _updateWorker(ID) {
       // remove the finished job ids so we can find out if the queue is idling or not
       this.inProgress = this.inProgress.filter(id => {
          return id !== ID
