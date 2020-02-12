@@ -19,7 +19,8 @@ class Worker {
          debugEnabled: debugEnabled,
          jobsToRunParallel: threads,
          allowDuplicates: allowDuplicates,
-         killIfIdle: killIfIdle
+         killIfIdle: killIfIdle,
+         pid: this.jobQueueHandler.pid
       })
 
       this.threadCount = threads
@@ -55,16 +56,24 @@ class Worker {
             }
          })
 
-         this.jobQueueHandler.send({
-            type: 'init-job',
-            id: ID,
-            // Since only this will be accessible for the Job, the ID is passed here as well
-            data: {
-               name: jobName,
-               args: args,
-               id: ID
+         try {
+            if(this.jobQueueHandler.connected) {
+               this.jobQueueHandler.send({
+                  type: 'init-job',
+                  id: ID,
+                  // Since only this will be accessible for the Job, the ID is passed here as well
+                  data: {
+                     name: jobName,
+                     args: args,
+                     id: ID
+                  }
+               })
+            } else {
+               throw new Error(`Job ${ID} could not be executed, worker ${this.jobQueueHandler.pid} is not connected.`)
             }
-         })
+         } catch(err) {
+            console.log(err)
+         }   
       })
    }
 

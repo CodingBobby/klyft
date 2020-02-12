@@ -13,10 +13,10 @@
     "worker"
   ],
   "repository": {
-    "url": "https://github.com/CodingBobby/klyft.git"
+    "url": "git://github.com/CodingBobby/klyft.git"
   },
   "publishConfig": {
-    "registry":"https://npm.pkg.github.com/klyft"
+    "registry":"https://npm.pkg.github.com/"
   },
   "author": "CodingBobby",
   "license": "ISC",
