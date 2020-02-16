@@ -12,6 +12,11 @@ class Worker {
       this.jobQueueHandler = fork(__dirname + '/lib/queue.js')
       debugLog(debugImportant, 'klyft', 'worker live at pid '+this.jobQueueHandler.pid)
 
+      const EventEmitter = require('events')
+      class WorkerEmitter extends EventEmitter{}
+
+      this.emitter = new WorkerEmitter()
+
       this.jobQueueHandler.send({
          type: 'init-queue',
          module: moduleName,
@@ -23,20 +28,20 @@ class Worker {
          pid: this.jobQueueHandler.pid
       })
 
+      this.jobQueueHandler.on('message', m => {
+         if(killIfIdle && m.type === 'status' && m.data === 'queue-completed') {
+            debugLog(debugImportant, 'klyft', 'terminating worker '+this.jobQueueHandler.pid)
+            this.jobQueueHandler.kill()
+         } else {
+            this.emitter.emit('message', m)
+         }
+      })
+
       this.threadCount = threads
 
       this.inProgress = []
 
       this.killIfIdle = killIfIdle || false
-
-      if(killIfIdle) {
-         this.jobQueueHandler.on('message', m => {
-            if(m.type === 'status' && m.data === 'queue-completed') {
-               debugLog(debugImportant, 'klyft', 'terminating worker '+this.jobQueueHandler.pid)
-               this.jobQueueHandler.kill()
-            }
-         })
-      }
    }
 
    queue(jobName, args) {
@@ -46,11 +51,16 @@ class Worker {
       debugLog(debugEnabled, 'klyft', 'queueing '+jobName+' ('+ID+')')
       this.inProgress.push(ID)
 
+      // Each job need a listener to react when it is done, a suboptimal way to do it but whoever pushes 900 jobs at once should expect problems.
+      this.emitter.setMaxListeners(this.inProgress.length)
+
       return new Promise((resolve, rej) => {
-         this.jobQueueHandler.on('message', msg => {
+         this.emitter.on('message', msg => {
             if(msg.type === 'job-done') {
                if(msg.id === ID) {
                   this._updateWorker(ID)
+                  this.emitter.removeAllListeners('message')
+
                   resolve(msg.data)
                }
             }

@@ -1,6 +1,6 @@
 {
   "name": "klyft",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Unobstrusively make use of child processes in node.js!",
   "main": "klyft.js",
   "scripts": {
@@ -14,9 +14,6 @@
   ],
   "repository": {
     "url": "git://github.com/CodingBobby/klyft.git"
-  },
-  "publishConfig": {
-    "registry":"https://npm.pkg.github.com/"
   },
   "author": "CodingBobby",
   "license": "ISC",
