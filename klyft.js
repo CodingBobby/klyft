@@ -5,12 +5,15 @@ const debugLog = require('./lib/helper.js')
 let debugEnabled = false
 let debugImportant = false
 
+//TODO: Add possibility to "pipe-down" return values from finishing job to the next one in the same thread. This could be done by providing the option to queue not only one job at once (which is then automatically assigned to some thread) but by enqueueing an array of jobs which will then be placed in the given order into the same thread.
+
 
 class Worker {
-   constructor(moduleName, threads, allowDuplicates, killIfIdle) {
-      debugLog(debugEnabled, 'klyft', 'initializing worker for '+moduleName)
+   constructor(moduleName, logName, threads, allowDuplicates, killIfIdle) {
+      this.logName = logName || 'klyft'
+      debugLog(debugEnabled, this.logName, 'initializing worker for '+moduleName)
       this.jobQueueHandler = fork(__dirname + '/lib/queue.js')
-      debugLog(debugImportant, 'klyft', 'worker live at pid '+this.jobQueueHandler.pid)
+      debugLog(debugImportant, this.logName, 'worker live at pid '+this.jobQueueHandler.pid)
 
       const EventEmitter = require('events')
       class WorkerEmitter extends EventEmitter{}
@@ -22,6 +25,7 @@ class Worker {
          module: moduleName,
          debugImportant: debugImportant,
          debugEnabled: debugEnabled,
+         logName: this.logName,
          jobsToRunParallel: threads,
          allowDuplicates: allowDuplicates,
          killIfIdle: killIfIdle,
@@ -30,7 +34,7 @@ class Worker {
 
       this.jobQueueHandler.on('message', m => {
          if(killIfIdle && m.type === 'status' && m.data === 'queue-completed') {
-            debugLog(debugImportant, 'klyft', 'terminating worker '+this.jobQueueHandler.pid)
+            debugLog(debugImportant, this.logName, 'terminating worker '+this.jobQueueHandler.pid)
             this.jobQueueHandler.kill()
          } else {
             this.emitter.emit('message', m)
@@ -48,7 +52,7 @@ class Worker {
       const dateString = Date.now().toString().split('').splice(8).join('')
       const ID = rndStr(8) + dateString
 
-      debugLog(debugEnabled, 'klyft', 'queueing '+jobName+' ('+ID+')')
+      debugLog(debugEnabled, this.logName, 'queueing '+jobName+' ('+ID+')')
       this.inProgress.push(ID)
 
       // Each job need a listener to react when it is done, a suboptimal way to do it but whoever pushes 900 jobs at once should expect problems.
@@ -99,7 +103,7 @@ class Worker {
             killedThreads++
 
             if(killedThreads == this.threadCount) {
-               debugLog(debugImportant, 'klyft', 'terminating worker '+this.jobQueueHandler.pid)
+               debugLog(debugImportant, this.logName, 'terminating worker '+this.jobQueueHandler.pid)
                this.jobQueueHandler.kill()
             }
          }

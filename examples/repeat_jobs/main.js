@@ -2,7 +2,7 @@ const klyft = require('./../../klyft')
 
 klyft.enableDebug(true)
 
-const worker = new klyft.Worker('jobs.js', 1, true, false)
+const worker = new klyft.Worker('jobs.js', false, 1, true, false)
 
 function repeat(n) {
    if(n === 0) {
